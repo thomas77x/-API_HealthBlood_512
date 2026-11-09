@@ -1,0 +1,7 @@
+build/
+out/
+dist/
+nbproject/private/
+.idea/
+web/WEB-INF/classes/
+*.war

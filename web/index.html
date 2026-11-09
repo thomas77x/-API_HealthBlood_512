@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>BloodHealth - Control de la diabetes</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="BloodHealth: aplicación para el seguimiento de la glucosa en personas con diabetes.">
+        <style>
+            :root {
+                --bg: #ffffff;
+                --surface: #ffffff;
+                --text: #14161f;
+                --muted: #5b6070;
+                --border: #e6e8f0;
+                --accent: #c62828;
+                --accent-ink: #c62828;
+                --on-accent: #ffffff;
+                --accent-soft: #fdecec;
+                --shadow: 0 10px 30px rgba(20, 22, 31, .07);
+                --radius: 20px;
+            }
+            * { box-sizing: border-box; }
+            html { scroll-behavior: smooth; }
+            body {
+                margin: 0;
+                font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                line-height: 1.65;
+                -webkit-font-smoothing: antialiased;
+            }
+            .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+            /* Navegación */
+            nav {
+                position: sticky; top: 0; z-index: 10;
+                backdrop-filter: blur(14px);
+                background: rgba(12, 12, 14, .88);
+                color: #fff;
+                border-bottom: 1px solid rgba(255, 255, 255, .08);
+            }
+            nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+            .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em; }
+            .logo-icon {
+                width: 34px; height: 34px; border-radius: 10px;
+                background: var(--accent);
+                display: grid; place-items: center; color: var(--on-accent);
+            }
+            nav ul { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+            nav a { color: rgba(255, 255, 255, .7); text-decoration: none; font-size: .95rem; font-weight: 500; transition: color .2s; }
+            nav a:hover { color: #fff; }
+            @media (max-width: 640px) { nav ul { display: none; } }
+
+            /* Hero */
+            .hero { padding: 96px 0 80px; text-align: center; }
+            .badge {
+                display: inline-block; padding: 6px 14px; border-radius: 999px;
+                background: var(--accent-soft); color: var(--accent-ink);
+                font-size: .85rem; font-weight: 600; margin-bottom: 20px;
+            }
+            .hero h1 {
+                font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 1.08; margin: 0 0 20px;
+                letter-spacing: -.035em; font-weight: 800;
+            }
+            .grad { color: var(--accent-ink); }
+            .hero p { max-width: 580px; margin: 0 auto 32px; color: var(--muted); font-size: 1.15rem; }
+            .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+            .btn {
+                padding: 13px 26px; border-radius: 12px; font-weight: 600; text-decoration: none;
+                transition: transform .2s, box-shadow .2s;
+            }
+            .btn:hover { transform: translateY(-2px); }
+            .btn-primary { background: var(--accent); color: var(--on-accent); }
+            .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+            /* Estadísticas */
+            .stats {
+                display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;
+                margin-top: 56px;
+            }
+            .stat {
+                background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+                padding: 22px; box-shadow: var(--shadow);
+            }
+            .stat strong { display: block; font-size: 2rem; letter-spacing: -.03em; }
+            .stat span { color: var(--muted); font-size: .9rem; }
+
+            /* Secciones */
+            section { padding: 72px 0 0; }
+            .eyebrow { color: var(--accent-ink); font-weight: 700; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; }
+            h2 { font-size: clamp(1.7rem, 4vw, 2.4rem); letter-spacing: -.03em; margin: 8px 0 14px; line-height: 1.15; }
+            .lead { color: var(--muted); max-width: 640px; font-size: 1.05rem; }
+
+            .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 36px; }
+            .card {
+                background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+                padding: 26px; transition: transform .25s, box-shadow .25s;
+            }
+            .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+            .icon {
+                width: 46px; height: 46px; border-radius: 14px; margin-bottom: 16px;
+                background: var(--accent-soft); color: var(--accent-ink);
+                display: grid; place-items: center;
+            }
+            .card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+            .card p { margin: 0; color: var(--muted); font-size: .96rem; }
+
+            /* Pasos */
+            .steps { counter-reset: paso; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 36px; }
+            .step {
+                counter-increment: paso; position: relative;
+                background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+                padding: 26px; padding-top: 58px;
+            }
+            .step::before {
+                content: counter(paso); position: absolute; top: 20px; left: 26px;
+                width: 30px; height: 30px; border-radius: 50%;
+                background: var(--accent); color: var(--on-accent);
+                display: grid; place-items: center; font-weight: 700; font-size: .9rem;
+            }
+            .step p { margin: 0; font-weight: 500; }
+
+            /* Público */
+            .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+            .chip {
+                padding: 10px 18px; border-radius: 999px; background: var(--surface);
+                border: 1px solid var(--border); font-weight: 500; font-size: .95rem;
+            }
+
+            /* Aviso */
+            .aviso {
+                margin-top: 72px; padding: 20px 24px; border-radius: var(--radius);
+                background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+                color: var(--text); font-size: .95rem;
+            }
+
+            footer { margin-top: 72px; padding: 32px 0; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: .9rem; }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <div class="wrap">
+                <div class="logo">
+                    <span class="logo-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C12 2 5 10.2 5 15a7 7 0 0014 0c0-4.8-7-13-7-13z"/></svg>
+                    </span>
+                    BloodHealth
+                </div>
+                <ul>
+                    <li><a href="#funciones">Funciones</a></li>
+                    <li><a href="#como-funciona">Cómo funciona</a></li>
+                    <li><a href="#para-quien">Para quién</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <header class="hero">
+            <div class="wrap">
+                <span class="badge">Hecho para personas con diabetes</span>
+                <h1>Tu glucosa, <span class="grad">siempre bajo control</span></h1>
+                <p>Registra tus mediciones, descubre tendencias y comparte tus resultados con tu equipo médico. Todo en un solo lugar.</p>
+                <div class="btns">
+                    <a class="btn btn-primary" href="#funciones">Ver funciones</a>
+                    <a class="btn btn-ghost" href="#como-funciona">Cómo funciona</a>
+                </div>
+                <div class="stats">
+                    <div class="stat"><strong>24/7</strong><span>Acceso a tu historial</span></div>
+                    <div class="stat"><strong>100%</strong><span>Tus datos, tu control</span></div>
+                    <div class="stat"><strong>1 clic</strong><span>Informe para tu médico</span></div>
+                </div>
+            </div>
+        </header>
+
+        <main class="wrap">
+            <section id="funciones">
+                <div class="eyebrow">Funciones</div>
+                <h2>Todo lo que necesitas para cuidarte</h2>
+                <p class="lead">BloodHealth es una aplicación web que simplifica el seguimiento diario de la diabetes, sin complicaciones.</p>
+                <div class="grid">
+                    <article class="card">
+                        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2s-7 8-7 13a7 7 0 0014 0c0-5-7-13-7-13z"/></svg></div>
+                        <h3>Registro de glucosa</h3>
+                        <p>Anota tus niveles con fecha, hora y momento del día: en ayunas, antes o después de comer.</p>
+                    </article>
+                    <article class="card">
+                        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+                        <h3>Historial y gráficas</h3>
+                        <p>Visualiza la evolución de tus mediciones y detecta tendencias con el paso del tiempo.</p>
+                    </article>
+                    <article class="card">
+                        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+                        <h3>Alertas</h3>
+                        <p>Recibe avisos cuando tus valores estén por encima o por debajo de tu rango objetivo.</p>
+                    </article>
+                    <article class="card">
+                        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+                        <h3>Recordatorios</h3>
+                        <p>Programa recordatorios para medir tu glucosa, tomar tu medicación o acudir a tus citas.</p>
+                    </article>
+                    <article class="card">
+                        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+                        <h3>Informes para tu médico</h3>
+                        <p>Genera resúmenes claros de tus datos para compartirlos en tus consultas.</p>
+                    </article>
+                    <article class="card">
+                        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></svg></div>
+                        <h3>Privacidad</h3>
+                        <p>Tus datos de salud son personales: solo tú decides quién puede verlos.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section id="como-funciona">
+                <div class="eyebrow">Cómo funciona</div>
+                <h2>Empieza en cuatro pasos</h2>
+                <div class="steps">
+                    <div class="step"><p>Crea tu cuenta e indica tu rango objetivo de glucosa.</p></div>
+                    <div class="step"><p>Registra tus mediciones cada día.</p></div>
+                    <div class="step"><p>Revisa tu historial, gráficas y alertas.</p></div>
+                    <div class="step"><p>Comparte tus informes con tu profesional de la salud.</p></div>
+                </div>
+            </section>
+
+            <section id="para-quien">
+                <div class="eyebrow">Para quién</div>
+                <h2>Pensada para toda la familia</h2>
+                <div class="chips">
+                    <span class="chip">Diabetes tipo 1</span>
+                    <span class="chip">Diabetes tipo 2</span>
+                    <span class="chip">Prediabetes</span>
+                    <span class="chip">Diabetes gestacional</span>
+                    <span class="chip">Familiares y cuidadores</span>
+                </div>
+            </section>
+
+            <div class="aviso">
+                <strong>Aviso importante:</strong> BloodHealth es una herramienta de apoyo y no sustituye el consejo,
+                diagnóstico ni tratamiento de un profesional médico. Ante cualquier duda sobre tu salud, consulta a tu médico.
+            </div>
+        </main>
+
+        <footer>
+            <div class="wrap">&copy; 2026 BloodHealth. Todos los derechos reservados.</div>
+        </footer>
+    </body>
+</html>
