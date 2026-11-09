@@ -5,3 +5,4 @@ nbproject/private/
 .idea/
 web/WEB-INF/classes/
 *.war
+api-tester.html

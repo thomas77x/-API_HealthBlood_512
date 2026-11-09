@@ -78,6 +78,44 @@ public class RestGlucosa {
         return Response.ok(out).build();
     }
 
+    @Path("getUsuarioById")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUsuarioById(
+            @QueryParam("idUsuario") String idUsuario
+    ){
+        if(idUsuario == null || idUsuario.isBlank()){
+            return badRequest("El idUsuario es obligatorio");
+        }
+
+        int idUsuarioInt;
+        try{
+            idUsuarioInt = Integer.parseInt(idUsuario.trim());
+        }catch(NumberFormatException e){
+            return badRequest("El idUsuario debe ser un número entero");
+        }
+        if(idUsuarioInt <= 0){
+            return badRequest("El idUsuario debe ser mayor que cero");
+        }
+
+        ControllerUsuario cu = new ControllerUsuario();
+        Gson gson = new Gson();
+        try{
+            Usuario usuario = cu.getUsuarioById(idUsuarioInt);
+            if(usuario == null){
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(jsonMensaje("result", "Usuario no encontrado"))
+                        .build();
+            }
+            return Response.ok(gson.toJson(usuario)).build();
+        }catch(SQLException e){
+            e.printStackTrace();
+            return Response.serverError()
+                    .entity("{\"result\":\"Error al obtener el usuario\"}")
+                    .build();
+        }
+    }
+
     @Path("insertUsuario")
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)

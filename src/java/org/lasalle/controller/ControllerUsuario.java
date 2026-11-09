@@ -33,6 +33,27 @@ public class ControllerUsuario {
         return lista;
     }
 
+    public Usuario getUsuarioById(int idUsuario) throws SQLException {
+        String sqlQuery = "SELECT * FROM usuario WHERE idUsuario = ?";
+        ConnectionMysql connMysql = new ConnectionMysql();
+        Connection conn = connMysql.open();
+        if (conn == null) {
+            throw new SQLException("No se pudo conectar a la base de datos");
+        }
+
+        try (conn;
+             PreparedStatement pst = conn.prepareStatement(sqlQuery)) {
+
+            pst.setInt(1, idUsuario);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return fillUsuario(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     public int insertarUsuario(Usuario usuario) throws SQLException {
         String sql = "INSERT INTO usuario (nombre, primerApellido, segundoApellido, email) "
                    + "VALUES (?, ?, ?, ?)";
